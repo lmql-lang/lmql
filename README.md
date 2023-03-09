@@ -89,6 +89,7 @@ Based on reviewer comments and other fixes, we will include a slightly revised v
 * Strengthen the Date Understanding Standard Decoding baseline implementation to be on-par with LMQL accuracy-wise. This ensures better comparabliity regarding token metrics and efficiency.
 * Ensure that the two samples used in the few-shot examples for Date Understanding and Odd One Out are excluded during evaluation.
 * Fix some whitespace issues in the prompts of both the baseline and the LMQL implementations, such that they align with each other, as much as possible.
+* We additionally evaluate the Table 3 datasets on OpenAI's most-capable GPT-3.5 model `text-davinci-003`. This additional comparison mainly serves as further evidence that LMQL maintains accuracy even on high-end models. Note however, that due to OpenAI API limitations, efficiency gains with OpenAI models are only very small, as internally LMQL has to rely on a slightly advanced variant of chunk-wise decoding to integrate OpenAI models. Further, due to the OpenAI API, Model Queries cannot be counted as with local models, and are therefore reported as `0.0`.
 
 ## Project Structure
 
