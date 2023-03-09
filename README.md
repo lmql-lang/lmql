@@ -60,13 +60,13 @@ Alternatively, one can also run the individual evaluation scripts one by one. Ho
 
 **OpenAI API Determinism**: Note that the OpenAI API is not fully deterministic, even for `argmax` sampling (cf. https://platform.openai.com/docs/guides/completion). Therefore, the results in `table3_revised.txt` may differ slighlty from our reference and across several runs.
 
-### Main Claims supported by this Evaluation
+### Main Claims supported by this evaluation
 
 The evaluation scripts provided here correspond directly to the respective figures of the paper and support the two main claims of the paper:
 
-* Table 3, 4: Compared to baseline implementation for Standard LM Decoding, LMQL maintains or improves accuracy (`table3.py`), while being significantly more efficient, i.e. reducing the no. of generate() calls, Model Queries and Billable Tokens (`table3.py`, `table4.py`).
+* Table 3, 4: Compared to the baseline implementation for Standard LM Decoding, LMQL maintains or improves accuracy (`table3.py`), while being significantly more efficient, i.e. reducing the no. of generate() calls, Model Queries and Billable Tokens (`table3.py`, `table4.py`).
 
-* Fig 12: With chunk-wise decoding (Standard Decoding), varying the chunk size affects efficiency in terms of generate() calls, Model Queries and Billable Tokens as seen in Fig. 12. However, for chunk size 30, which appears to minimize the number of billable tokens, LMQL still outperforms Standard Decoding with respect to efficiency.
+* Fig 12: With chunk-wise decoding (Standard Decoding), varying the chunk size affects efficiency in terms of generate() calls, Model Queries and Billable Tokens as seen in Fig. 12. However, even for chunk size 30, which appears to minimize the number of billable tokens, LMQL still outperforms Standard Decoding with respect to efficiency.
 
 ### Re-Running Individual Evaluation Scripts 
 
