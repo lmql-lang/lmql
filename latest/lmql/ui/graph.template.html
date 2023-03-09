@@ -1,0 +1,326 @@
+<!DOCTYPE>
+
+<html>
+
+  <head>
+    <title>cytoscape-dagre.js demo</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.22.1/dist/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.4.0/cytoscape-dagre.min.js"></script>
+
+    <style>
+      body {
+        font-family: helvetica;
+        font-size: 14px;
+      }
+
+      #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 999;
+      }
+
+      h1 {
+        opacity: 0.5;
+        font-size: 1em;
+      }
+    </style>
+
+    <script>
+      function lowestDepthFrom(nodes, root) {
+        var toTraverse = [root];
+        var visited = {};
+        var depth = 0;
+        var nodeDepths = {}
+        while (toTraverse.length > 0) {
+          let levelNodes = Array.from(toTraverse);
+          toTraverse = [];
+          for (let node of levelNodes) {
+            visited[node.id()] = true;
+            node.data("row", Math.max(depth, node.data("row") || -1));
+
+            for (let child of node.outgoers()) {
+              const target = child.target();
+              // console.log(root.data("label"), "has outgoing edge to", child.source().data("label"), target.data("label"))
+              if (!nodes.has(target)) continue;
+              //if (visited[target.id()]) continue;
+              if (!target.id()) continue
+
+              toTraverse.push(target);
+            }
+          }
+          depth++;
+        }
+      }
+
+      function layout(cy) {
+        const token_nodes = cy.filter("node[is_token=1]").sort((a, b) => {
+          // parse index from SequenceOp: something (index)
+          const aIndex = a.data("token_index")
+          const bIndex = b.data("token_index")
+          return aIndex - bIndex;
+        })
+        
+        token_nodes.each((n) => {
+          const index = n.data("token_index")
+          n.data("column", index);
+
+          n.successors().map(e => {
+            if (!e.source().data("label")) return;
+            if (!e.target().data("label")) return;
+            // console.log(n.data("label") + "=>" + nn.data("label"));
+            let existing = e.target().data("column") || 0;
+            e.target().data("column", Math.max(existing, index));
+          })
+        })
+
+        token_nodes.each(n => {
+          const sameColumn = cy.nodes("node[column=" + n.data("column") + "]");
+          lowestDepthFrom(sameColumn, n);
+        })
+
+        // determine tabular dimensions
+        let dimensions = {};
+        let numColumns = 0;
+        let numRows = 0;
+        cy.nodes().each(n => {
+          const c = n.data("column");
+          const r = n.data("row");
+
+          if (typeof c === "undefined") return;
+          if (typeof r === "undefined") return;
+          
+          if (dimensions[c] === undefined) {
+            dimensions[c] = {};
+          }
+          if (dimensions[c][r] === undefined) {
+            dimensions[c][r] = 0;
+          }
+
+          n.data("row-index", dimensions[c][r]);
+          dimensions[c][r]++;
+
+          numColumns = Math.max(numColumns, c || 0);
+          numRows = Math.max(numRows, r || 0);
+        })
+
+        // for nodes that have not been assigned a row/column
+        cy.nodes().each((n) => {
+          // console.log("set position for ", n.data("label"), n.data("column"), n.data("row"))
+          if (n.data("column") === undefined || n.data("row") === undefined) {
+            // find successor rows and columns
+            let successorColumns = [];
+            let successorRows = [];
+            
+            let minRow = 0;
+            let meanColumn = 0;
+            let numSuccessors = 0;
+            
+            n.successors().map(e => {
+              if (e.target().data("column") === undefined) return;
+              if (e.target().data("row") === undefined) return;
+              
+              minRow = Math.min(minRow, e.target().data("row"));
+              meanColumn += e.target().data("column");
+              numSuccessors += 1;
+            })
+            
+            const c = numSuccessors != 0 ? Math.floor(meanColumn / numSuccessors) : 0;
+            const r = Math.max(-1, minRow - 1);
+
+            if (dimensions[c] === undefined) {
+              dimensions[c] = {};
+            }
+            if (dimensions[c][r] === undefined) {
+              dimensions[c][r] = 0;
+            }
+
+            n.data("column", c);
+            n.data("row", r);
+            n.data("row-index", dimensions[c][r]);
+            dimensions[c][r]++;
+
+            // console.log("set mean position for ", n.data("label"), n.data("column"), n.data("row"))
+          } else if (n.data("op") == "ValidationResultOp") {
+            n.data("row", numRows)
+          }
+        })
+
+        // print dimensions matrix
+        for (let c = 0; c <= numRows; c++) {
+          let row = "";
+          for (let r = 0; r <= numColumns; r++) {
+            if (dimensions[r] && dimensions[r][c]) {
+              row += "" + dimensions[r][c];
+            } else {
+              row += "0";
+            }
+            row += " ";
+          }
+        }
+
+        let columnWidths = [];
+        // determine max dimensions per row and column
+        for (let i=0; i<=numColumns; i++) {
+          let max = 0;
+          for (let j=0; j<=numRows; j++) {
+            max = Math.max(max, dimensions[i][j] || 0);
+          }
+          columnWidths.push(max);
+        }
+
+        let rowHeights = [];
+        for (let j=0; j<=numRows; j++) {
+          let max = 0;
+          for (let i=0; i<=numColumns; i++) {
+            max = Math.max(max, dimensions[i][j] || 0);
+          }
+          rowHeights.push(max);
+        }
+
+        let nodeWidth = 120;
+        let accumulatedColumnWidths = [];
+        let sum = 0;
+        
+        for (let i=0; i<=numColumns; i++) {
+          accumulatedColumnWidths.push(sum);
+          sum += columnWidths[i] * nodeWidth;
+        }
+
+        cy.nodes().each((n) => {
+          // console.log("set position for ", n.data("label"), n.data("column"), n.data("row"), n.data("row-index"))
+          if (n.data("column") === undefined || n.data("row") === undefined) {
+            n.data("floating", true);
+            return;
+          }
+          n.position({
+            x: accumulatedColumnWidths[(n.data("column") || 0)] + n.data("row-index") * nodeWidth,
+            y: (n.data("row") || 0) * nodeWidth,
+          });
+        });
+      }
+
+      window.addEventListener('DOMContentLoaded', function(){
+        var cy = window.cy = cytoscape({
+          container: document.getElementById('cy'),
+
+          boxSelectionEnabled: false,
+          autounselectify: true,
+
+          style: [
+            {
+              selector: 'node',
+              style: {
+                // light gray
+                'background-color': '#ccc',
+                "shape": "round-rectangle",
+                // size
+                'width': 80,
+                'height': 40,
+                "label": "data(label)",
+                "font-size": "8px",
+                "text-valign": "center",
+                "text-halign": "center",
+              }
+            },
+            {
+              selector: 'node[is_token=1]',
+              style: {
+                'label': 'data(token)',
+                'background-color': '#f5f5f5',
+                'border-color': '#b0b0b0',
+                'border-width': '1px',
+                'padding': '2px',
+                'font-size': '14px',
+                'shape': 'rectangle',
+                'width': 50,
+                'height': 30,
+              }
+            },
+            {
+              selector: 'node[is_true]',
+              style: {
+                'border-color': 'green',
+                'border-width': '2px',
+                // light green
+                'background-color': '#e0ffd0',
+              },
+            },
+            {
+              selector: 'node[is_false]',
+              style: {
+                'border-color': 'red',
+                'border-width': '2px',
+                // light red
+                'background-color': '#ffd0d0',
+              },
+            },
+            {
+              selector: 'edge',
+              style: {
+                'width': 2,
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
+              }
+            }
+          ],
+
+          elements: $GRAPH_DATA
+          // {
+          //   nodes: [
+          //     { data: { id: 'n0' } },
+          //     { data: { id: 'n1' } },
+          //     { data: { id: 'n2' } },
+          //     { data: { id: 'n3' } },
+          //     { data: { id: 'n4' } },
+          //     { data: { id: 'n5' } },
+          //     { data: { id: 'n6' } },
+          //     { data: { id: 'n7' } },
+          //     { data: { id: 'n8' } },
+          //     { data: { id: 'n9' } },
+          //     { data: { id: 'n10' } },
+          //     { data: { id: 'n11' } },
+          //     { data: { id: 'n12' } },
+          //     { data: { id: 'n13' } },
+          //     { data: { id: 'n14' } },
+          //     { data: { id: 'n15' } },
+          //     { data: { id: 'n16' } }
+          //   ],
+          //   edges: [
+          //     { data: { source: 'n0', target: 'n1' } },
+          //     { data: { source: 'n1', target: 'n2' } },
+          //     { data: { source: 'n1', target: 'n3' } },
+          //     { data: { source: 'n4', target: 'n5' } },
+          //     { data: { source: 'n4', target: 'n6' } },
+          //     { data: { source: 'n6', target: 'n7' } },
+          //     { data: { source: 'n6', target: 'n8' } },
+          //     { data: { source: 'n8', target: 'n9' } },
+          //     { data: { source: 'n8', target: 'n10' } },
+          //     { data: { source: 'n11', target: 'n12' } },
+          //     { data: { source: 'n12', target: 'n13' } },
+          //     { data: { source: 'n13', target: 'n14' } },
+          //     { data: { source: 'n13', target: 'n15' } },
+          //   ]
+          // }
+        });
+        layout(cy);
+        cy.fit();
+        console.log($GRAPH_DATA)
+      });
+    </script>
+  </head>
+
+  <body>
+    <h1>Evaluation Graph</h1>
+
+    <div id="cy"></div>
+
+  </body>
+
+</html>

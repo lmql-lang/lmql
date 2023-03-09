@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMQL</title>
+    
+    <link rel="stylesheet" href="/base.css">
+    <script src="/socket.io.min.js"></script>
+    
+    <link href="/vs/editor/editor.main.css" rel="stylesheet" />
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="/vs/editor/editor.main.css">
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script type="text/javascript" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="app-name">No app.</div>
+    <<<CLIENT_HTML>>>
+    
+    <script src="/client.js"></script>
+
+    <script>var require = { paths: { 'vs': '/vs' } };</script>
+    <script type="text/javascript" src="/vs/loader.js"></script>
+    <script type="text/javascript" src="/vs/editor/editor.main.nls.js"></script>
+    <script type="text/javascript" src="/vs/editor/editor.main.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+import calculator
+
+ARGMAX(distribution_batch_size=1, max_len=2048, stats=True)
+    QUESTION="Noah is a painter. He paints pictures and sells them at the park. He charges $60 for a large painting and $30 for a small painting. Last month he sold eight large paintings and four small paintings. If he sold twice as much this month, how much is his sales for this month?"
+    "Q: Every hour Joanne has to collect the coins out of the fountain inside the mall. During the first hour, she collected 15 coins. For the next two hours, she collected 35 coins from the fountain. In the fourth hour, she collected 50 coins from the fountain but she gave 15 of them to her coworker so she could buy a soda. How many coins did she have after the fourth hour?\n"
+    "A: Let's think step by step.\n"
+    "15 coins collected in hour one\n"
+    "35 coins collected in hour two\n"
+    "35 coins collected in hour three\n"
+    "50 coins collected in hour four\n"
+    "Before giving her coworker some coins there were 15+35+35+50=<<15+35+35+50=135>>135 coins\n"
+    "The number of coins after given 15 to her coworker is 135-15=<<135-15=120>>120\n"
+    "So the answer is 120 DONE\n"
+    "\n"
+    "Q: Jerry’s two daughters play softball on different teams. They each have 8 games this season. Each team practices 4 hours for every game they play. If each game lasts for 2 hours, how many hours will Jerry spend at the field watching his daughters play and practice altogether?\n"
+    "A: Let's think step by step.\n"
+    "Jerry will spend 8 games x 2 hours per game = <<8*2=16>>16 hours watching one daughter play her games.\n"
+    "He will spend 16 x 2 = <<16*2=32>>32 hours watching both daughters play their games.\n"
+    "He will spend 8 games x 4 hours of practice = <<8*4=32>>32 hours watching one daughter practice.\n"
+    "He will spend 32 x 2 = <<32*2=64>>64 hours watching both daughters practice.\n"
+    "He will spend a total of 32 hours watching games + 64 hours watching practice = <<32+64=96>>96 hours.\n"
+    "So the answer is 96 DONE\n\n"
+    "Q: {QUESTION}\n"
+    "A: Let's think step by step.\n"
+    answer_mode = False
+    for i in range(1024):
+        "[REASON_OR_CALC]"
+        if "So the answer" in REASON_OR_CALC:
+            answer_mode = True
+        if REASON_OR_CALC.endswith("<<"):
+            " [EXPR] "
+            result = calculator.run(EXPR)
+            " {result} >> "
+            # after producing the final answer we stop the reasoning loop
+            if answer_mode: 
+                break
+    " is [RESULT]"
+FROM 
+    "EleutherAI/gpt-j-6B"
+WHERE
+    INT(RESULT) and
+    STOPS_AT(REASON_OR_CALC, "<<") and
+    STOPS_AT(EXPR, "=")

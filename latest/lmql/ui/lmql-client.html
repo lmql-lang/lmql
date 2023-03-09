@@ -1,0 +1,43 @@
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.22.1/dist/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.4.0/cytoscape-dagre.min.js"></script>
+
+<div class="code-pane">
+    <div id="code-input">
+        <ul class="tabbar">
+            <li class="active">Editor</li>
+            <li>Query Arguments</li>
+        </ul>
+        <div id="lmql-input">
+            <div id="editor" autocomplete="off"></div>
+            <div class="app-control">
+                <button id="send-button" onclick="run()">Send</button>
+                <button id="stop-button" onclick="stop()" disabled>Stop</button>
+            </div>
+        </div>
+        <div id="lmql-inputs" style="display: none;">
+            <textarea id="query-arguments" placeholder="One argument per line"></textarea>
+        </div>
+    </div>
+    <div id="code-sidebar">
+        <ul class="tabbar">
+            <li>Compiled</li>
+            <li class="active">Output</li>
+        </ul>
+        <div id="lmql-compiled"></div>
+        <div id="app-console">
+            <div class="console-controls">
+                <button style="flex: 1;" onclick="clear_console()">Clear</button>
+                <input type="checkbox" onchange="onchange_clear_on_run()" id="clear-on-run"/>
+                <label for="clear-on-run" >Clear on Run</label>
+            </div>
+            <div id="console-output"></div>
+        </div>
+    </div>
+</div>
+
+<div id="app-content">
+    <div id="lmql-debugger">
+        <h2>Hypotheses</h2>
+    </div>
+</div>

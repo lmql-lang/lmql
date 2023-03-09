@@ -1,0 +1,37 @@
+argmax
+    "Q: Today is Christmas Eve of 1937. What is the date 10 days ago in MM/DD/YYYY?\n"
+    "Options:\n"
+    "(A) 12/14/2026\n"
+    "(B) 12/14/1950\n"
+    "(C) 12/14/2007\n"
+    "(D) 12/14/1937\n"
+    "(E) 07/14/1938\n"
+    "(F) 12/14/1988\n"
+    "A: Let's think step by step.\n If today is Christmas Eve of 1937, then today's date is December 24, 1937. 10 days before today is December 14, 1937, that is 12/14/1937.\n"
+    "So the answer is (D).\n\n"
+    "Q: Tomorrow is 11/12/2019. What is the date one year ago from today in MM/DD/YYYY?\n"
+    "Options:\n"
+    "(A) 09/04/2018\n"
+    "(B) 11/11/2018\n"
+    "(C) 08/25/2018\n"
+    "(D) 11/02/2018\n"
+    "(E) 11/04/2018\n"
+    "A: Let's think step by step.\n If tomorrow is 11/12/2019, then today is 11/11/2019. The date one year ago from today is 11/11/2018.\n" 
+    "So the answer is (B).\n\n"
+    "Q: {QUESTION}\n"
+    OPTIONS = OPTIONS_LIST.split(", ")
+    A_TO_Z = ["A", "B", "C", "D", "E", "F", "G", "H", "I"]
+    OPTIONS_LIST = "\n".join([f"({a}) {o}" for o, a in zip(OPTIONS, A_TO_Z)])
+    "Options:\n{OPTIONS_LIST}\n"
+    "A: Let's think step by step.\n [REASONING] "
+    if REASONING.endswith("So the answer"):
+        "is "
+    else:
+        "So the answer is "
+    "[RESULT]"
+FROM 
+    'EleutherAI/gpt-j-6B'
+WHERE
+    STOPS_AT(REASONING, "\n") and STOPS_AT(REASONING, "So the answer")
+DISTRIBUTION
+    RESULT in [f"({a})" for a,_ in zip(A_TO_Z, OPTIONS)]

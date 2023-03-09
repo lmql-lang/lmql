@@ -1,0 +1,87 @@
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.22.1/dist/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.4.0/cytoscape-dagre.min.js"></script>
+
+<style>
+.code-pane {
+    height: auto;
+    flex-direction: column;
+}
+
+#app-content h4 {
+    margin-top: 0;
+    text-align: left;
+}
+
+#console-output {
+    background-color: rgb(39, 39, 39);
+    color: rgb(243, 241, 241);
+    font-family: monospace;
+    font-size: 12px;
+    padding: 10px;
+    padding-bottom: 40pt;
+    border-radius: 5pt;
+    height: 100%;
+}
+
+#app-console {
+    flex: 1;
+    height: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#decoder-graph {
+    flex: 1;
+    height: 100%;
+}
+
+#code-input {
+    flex-direction: column;
+    width: 400pt;
+}
+
+body {
+    align-items: stretch;
+}
+
+body h1 { 
+    display: none;
+}
+
+.left-to-right {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 50pt);
+    flex-direction: row;
+}
+
+</style>
+
+<div class="left-to-right">
+<div class="code-pane">
+    <div id="code-input">
+        <div id="lmql-input">
+            <div id="editor" autocomplete="off"></div>
+        </div>
+        <div class="app-control">
+            <button id="send-button" onclick="run()">Send</button>
+            <button id="stop-button" onclick="stop()" disabled>Stop</button>
+        </div>
+        <div id="app-console">
+            <div class="console-controls">
+                <button style="flex: 1;" onclick="clear_console()">Clear</button>
+                <input type="checkbox" onchange="onchange_clear_on_run()" id="clear-on-run"/>
+                <label for="clear-on-run" >Clear on Run</label>
+            </div>
+            <div id="console-output"></div>
+        </div>
+    </div>
+</div>
+
+<div id="app-content">
+    <h4>Decoder Graph</h4>
+    <div id="decoder-graph"></div>
+</div>
+
+</div>

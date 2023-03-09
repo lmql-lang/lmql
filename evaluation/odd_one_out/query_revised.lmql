@@ -1,0 +1,20 @@
+ARGMAX(distribution_batch_size=1)
+    "Pick the odd word out: skirt, dress, pen, jacket.\n"
+    "skirt is clothing, dress is clothing, pen is an object, jacket is clothing.\n"
+    "So the odd one is pen.\n\n"
+    "Pick the odd word out: Spain, France, German, England, Singapore.\n"
+    "Spain is a country, France is a country, German is a language, England is a country, Singapore is a country.\n"
+    "So the odd one is German.\n\n"
+    "Pick the odd word out: {OPTIONS}.\n"
+    "[REASONING]"
+    "[RESULT]"
+FROM 
+    'EleutherAI/gpt-j-6B'
+WHERE
+    not "\n" in REASONING and not "Pick" in REASONING and
+    STOPS_AT(REASONING, "Pick the odd word") and
+    STOPS_AT(REASONING, "\n") and
+    STOPS_AT(REASONING, "So the odd one") and
+    STOPS_AT(REASONING, ".") and len(WORDS(REASONING)) < 40
+DISTRIBUTION
+    RESULT in OPTIONS.split(", ")

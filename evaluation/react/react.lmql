@@ -1,0 +1,47 @@
+import wikipedia_utils
+
+ARGMAX(max_len=2048, stats=True)
+   "What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?"
+   "Tho 1: I need to search Colorado orogeny, find the area that the eastern sector of the Colorado orogeny extends into, then find the elevation range of the area.\n"
+   "Act 2: Search 'Colorado orogeny'\n"
+   "Obs 2: The Colorado orogeny was an episode of mountain building (an orogeny) in Colorado and surrounding areas.\n"
+   "Tho 3: It does not mention the eastern sector.  So I need to look up eastern sector.\n"
+   "Act 4: Search 'eastern sector'\n"
+   "Obs 4: The eastern sector extends into the High Plains and is called the Central Plains orogeny.\n"
+   "Tho 5: The eastern sector of Colorado orogeny extends into the High Plains.  So I need to search High Plains and find its elevation range.\n"
+   "Act 6: Search 'High Plains'\n\n"
+   "Obs 6: High Plains refers to one of two distinct land regions."
+   "Tho 7: I need to instead search High Plains (United States)."
+   "Act 9: Search 'High Plains (United States)'"
+   "Obs 9: The High Plains are a subregion of the Great Plains.  From east to west, the High Plains rise in elevation from around 1,800 to 7,000 ft (550 to 2,130m)."
+   "Tho 10: High Plains rise in elevation from around 1,800 to 7,000 ft, so the answer is 1,800 to 7,000 ft."
+   "Act 5: Finish '1,800 to 7,000 ft'\n\n"
+   "Which documentary is about Finnish rock groups, Adam Clayton Powell or The Saimaa Gesture?\n"
+   "Tho 1: I need to search Adam Clayton Powell and The Saimaa Gesture, and find which documentary is about Finnish rock groups.\n"
+   "Act 2: Search 'Adam Clayton Powell'\n"
+   "Obs 2: No results.\n"
+   "Tho 2: To find the documentary, I can search Adam Clayton Powell (film).\n"
+   "Act 3: Search 'Adam Clayton Powell (film)'\n"
+   "Obs 3: Adam Clayton Powell is a 1989 American documentary film directed by Richard Kilberg.  The film is about the rise and fall of influential African-American politician Adam Clayton Powell Jr. It was later aired as part of the PBS series The American Experience.\n"
+   "Tho 4: Adam Clayton Powell (film) is a documentary about an African-American politician, not Finnish rock groups.  So the documentary about Finnish rock groups must instead be The Saimaa Gesture.\n"
+   "Act 5: Finish 'The Saimaa Gesture'\n\n"
+   "Chang Ucchin was born in korea during a time that ended with the conclusion of what?\n"
+   for i in range(1, 1024):
+      "[MODE] {i}:"
+      if MODE == "Tho": 
+          "[THOUGHT] "
+      elif MODE == "Act":
+          " [ACTION] '[SUBJECT]\n"
+          if ACTION == "Search": 
+            result = wikipedia_utils.search(SUBJECT[:-1]) # cutting of the consumed '
+            "Obs {i}: {result}\n"
+          else:
+            break # action must be FINISH
+FROM
+   'gpt2-xl'
+WHERE
+    MODE in ["Tho", "Act"] and STOPS_AT(THOUGHT, "\n") and
+    ACTION in ["Search", "Finish"] and
+    len(WORDS(THOUGHT)) > 2 and
+    STOPS_AT(SUBJECT, "'") and
+    not "Tho" in THOUGHT
