@@ -1,4 +1,7 @@
 # coding=utf-8
+# This file is adapted from the original file as part of the huggingface/transformers library, 
+# which is licensed and distributed according to the following terms:
+#
 # Copyright 2020 The Google AI Language Team Authors, Facebook AI Research authors and The HuggingFace Inc. team.
 # Copyright (c) 2020, NVIDIA CORPORATION.  All rights reserved.
 #

@@ -1,4 +1,7 @@
 # coding=utf-8
+# This file is adapted from the original file as part of the huggingface/transformers library, 
+# which is licensed and distributed according to the following terms:
+#
 # Copyright 2020 The HuggingFace Inc. team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
