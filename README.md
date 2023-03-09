@@ -54,7 +54,7 @@ Alternatively, one can also run the individual evaluation scripts one by one. Ho
 
 **Results:** Upon completion, each script will produce the respective result files `table3.txt`, `table4.txt`, `fig12.txt` and `table3_revised.txt`, which directly align with the paper. For reference, we also include the results obtained by us in this way in file `RESULTS.md`.
 
-**Running Time**: Depending on GPU resources, the complete evaluation can take a relatively long time to complete (e.g. up to 14 hours on two NVIDIA TITAN GPUs). We therefore recommend to run the evaluation scripts in a detachable terminal environment like `tmux`.
+**Running Time**: Depending on GPU resources, the complete evaluation can take a relatively long time to complete (e.g. up to 20 hours on two NVIDIA TITAN GPUs). We therefore recommend to run the evaluation scripts in a detachable terminal environment like `tmux`.
 
 **OpenAI API Access and Cost**: The evaluation script `table3_revised.txt` invokes the OpenAI API to evaluate LMQL and baselines on the `text-davinci-003` model. Since this can be costly (~$60 per run), we suggest that you refrain from re-running this particular evaluation script many times. 
 
